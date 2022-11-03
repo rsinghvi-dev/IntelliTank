@@ -2,7 +2,7 @@ from machine import ADC
 from time import sleep
 import math
         
-        
+dummy = 0      
 adc = ADC(26)
 conversion_factor = 3.3 / (65535.0)
 
@@ -17,3 +17,4 @@ while True:
     print("Voltage is: " + str(round(voltage, 2)))
     print("Turbidity is: " + str(turbidity) +'\n')
     sleep(3)
+
