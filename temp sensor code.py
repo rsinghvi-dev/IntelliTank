@@ -4,11 +4,9 @@ import time, machine, onewire, ds18x20
 #import adafruit_circuitpython_ds18x20
 #from adafruit_ds18x20 import DS18X20
 
-ds_pin = machine.Pin(22)
+ds_pin = machine.Pin(17)
 
 ds_sensor = ds18x20.DS18X20(onewire.OneWire(ds_pin))
-
-
 
 roms = ds_sensor.scan() #scanning for all temperature sensors connected to pico
 
@@ -18,10 +16,6 @@ while True:
 #     print("--------")
     
     ds_sensor.convert_temp() #this is the temperature in celcius
-    
-    #print(ds_sensor.read_temp())
-    #f_temp = (ds_sensor.convert_temp() * 1.8) + 32 #converting celcius to fahrenheit
-    #new_f_temp = float(f_temp)
     
     time.sleep_ms(750)
     
