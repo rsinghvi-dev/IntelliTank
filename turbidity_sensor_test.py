@@ -1,8 +1,7 @@
 from machine import ADC
 from time import sleep
 import math
-        
-dummy = 0      
+              
 adc = ADC(26)
 conversion_factor = 3.3 / (65535.0)
 
