@@ -4,7 +4,7 @@ import time, machine, onewire, ds18x20
 #import adafruit_circuitpython_ds18x20
 #from adafruit_ds18x20 import DS18X20
 
-ds_pin = machine.Pin(17)
+ds_pin = machine.Pin()
 
 ds_sensor = ds18x20.DS18X20(onewire.OneWire(ds_pin))
 
