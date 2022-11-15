@@ -5,6 +5,7 @@ import math
 
 adc = ADC(26)
 
+
 while True:
     voltage = adc.read_u16()/16.004
     PH = float((-3*voltage)/653.0) + 15.6922
