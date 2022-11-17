@@ -20,7 +20,7 @@ class Turbidity:
             turbidity = (-1120.4*(voltage**2)) + (5742.3*voltage) - 4352.9
             return turbidity
         except:
-            return 0
+            print("Error in reading turbidity")
 
 
 class Oled:
@@ -28,19 +28,21 @@ class Oled:
         self.i2c = I2C(0,sda=Pin(sda_pin), scl=Pin(scl_pin), freq=400000)
         self.oled = SSD1306_I2C(128, 64, self.i2c)
 
-    def show_oled(self, text: str, reading: float, tX: int, y: int):
+    def clear(self):
         self.oled.fill(0)
-        self.oled.text(text, tX, y)
-        self.oled.text(str(round(reading,2)), len(text)+2, y)
+    
+    def show_scr(self):
         self.oled.show()
 
+    def show_oled(self, text: str, reading: float, x: int, y: int):
+        self.oled.text(text, x, y)
+        self.oled.text(str(round(reading,2)), len(text)+50, y)
+
     def welcome_screen(self):
-        self.oled.fill(0)
         self.oled.text("Welcome to", 23, 0)
         self.oled.text("IntelliTank!",15,10)
         self.oled.text("Press 1 to view",2, 40)
         self.oled.text("menu options",15,50)
-        self.oled.show()
     
 
 class TDS:
@@ -55,7 +57,6 @@ class TDS:
             return tdsValue
         else:
             return 0
-
 
 
 class Temperature:
@@ -77,24 +78,14 @@ class Temperature:
             return 0
 
 
-# ***** To do *****
-
 class PH:
     def _init_(self, pin_no):
         self.adc = ADC(pin_no)
-        self.base = None
-        self.acid = None
         
     def get_ph(self):
         try:
             voltage = self.adc.read_u16()/16.004
             ph = float((-3*voltage)/653.0) + 15.6922
-            if ph < 7.0:
-                self.acid = True
-                self.base = False
-            else:
-                self.acid = False
-                self.base = True
             return ph
         except:
-            return 0
+            print("Error in reading turbidity")
