@@ -24,20 +24,9 @@ def main():
         oled.clear()
         oled.show_oled("tb: ", tb_val, 0, 0)
         oled.show_oled("pH: ", ph_val, 0, 10)
-        oled.show()
+        oled.show_scr()
         sleep(1)
-        # temp.convert_temp()
-        # sleep(1)
-        # celcius = temp.read_temp(dev)        
-        # print(celcius, " Celcius\n")
-        # sleep(1)
-#     tb_val = tb.get_turbidity()
-#     ph_val = ph.get_ph()
-#     oled.clear()
-#     oled.show_oled("tb: ", tb_val, 0, 0)
-#     oled.show_oled("pH: ", ph_val, 0, 25)
-#     oled.show()
-#     sleep(3)
+
 
 
 if __name__ == "__main__":
