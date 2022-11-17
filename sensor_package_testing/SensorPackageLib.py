@@ -1,5 +1,8 @@
 from machine import ADC, Pin, I2C
 from ssd1306 import SSD1306_I2C
+from onewire import OneWire
+from ds18x20 import DS18X20
+from time import sleep_ms
 import math
 
 
@@ -18,8 +21,6 @@ class Turbidity:
             return turbidity
         except:
             return 0
-        # print("Voltage is: " + str(round(voltage, 2)))
-        # print("Turbidity is: " + str(turbidity) +'\n')
 
 
 class Oled:
@@ -27,15 +28,22 @@ class Oled:
         self.i2c = I2C(0,sda=Pin(sda_pin), scl=Pin(scl_pin), freq=400000)
         self.oled = SSD1306_I2C(128, 64, self.i2c)
 
-    def show_oled(self, reading):
+    def show_oled(self, text: str, reading: float, tX: int, y: int):
         self.oled.fill(0)
-        self.oled.text("ADC: ",5,8)
-        self.oled.text(str(round(reading,2)),40,8)
+        self.oled.text(text, tX, y)
+        self.oled.text(str(round(reading,2)), len(text)+2, y)
         self.oled.show()
 
+    def welcome_screen(self):
+        self.oled.fill(0)
+        self.oled.text("Welcome to", 23, 0)
+        self.oled.text("IntelliTank!",15,10)
+        self.oled.text("Press 1 to view",2, 40)
+        self.oled.text("menu options",15,50)
+        self.oled.show()
+    
 
 class TDS:
-     
     def _init_(self, channel):
         self.adc = ADC(channel)
  
@@ -49,41 +57,44 @@ class TDS:
             return 0
 
 
-# Simpler to use in main code
-# class Temperature:
-#     
-#     def _init_(self, pin_no):
-#         ow = OneWire(Pin(pin_no))
-#         self.temp = DS18X20Single(ow)
-#         self.roms = self.temp.scan() #scanning for all temperature sensors connected to pico
-#     
-#     def get_temp(self, scale):
-# #     print("--------")
-#         try:
-#             self.temp.convert_temp()
-#             sleep_ms(750)
-#             celcius = self.temp.read_temp(self.roms[0])
-#             if scale == "C":
-#                 return celcius
-#             else:
-#                 return self.temp.fahrenheit(celcius)
-#         except:
-#             return 0
+
+class Temperature:
+    def _init_(self, pin_no):
+        ow = OneWire(Pin(pin_no))
+        self.temp = DS18X20(ow)
+        self.roms = self.temp.scan() #scanning for all temperature sensors connected to pico
+    
+    def get_temp(self, scale = "F"):
+        try:
+            self.temp.convert_temp()
+            sleep_ms(750)
+            celcius = self.temp.read_temp(self.roms[0])
+            if scale == "C":
+                return celcius
+            else:
+                return self.temp.fahrenheit(celcius)
+        except:
+            return 0
 
 
 # ***** To do *****
 
-# class PH:
-    
-#     def _init_(self, pin_no, neutral, acid):
-#         self.adc = ADC(pin_no)
-#         self.neutral = neutral
-#         self.acid = acid
+class PH:
+    def _init_(self, pin_no):
+        self.adc = ADC(pin_no)
+        self.base = None
+        self.acid = None
         
-#     def get_ph(self):
-#         try:
-#             voltage = self.adc.read_u16()/16.004
-#             ph = float((-3*voltage)/653.0) + 15.6922
-#             return ph
-#         except:
-#             return 0
+    def get_ph(self):
+        try:
+            voltage = self.adc.read_u16()/16.004
+            ph = float((-3*voltage)/653.0) + 15.6922
+            if ph < 7.0:
+                self.acid = True
+                self.base = False
+            else:
+                self.acid = False
+                self.base = True
+            return ph
+        except:
+            return 0
