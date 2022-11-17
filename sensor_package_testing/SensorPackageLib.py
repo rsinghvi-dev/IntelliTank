@@ -20,7 +20,7 @@ class Turbidity:
             turbidity = (-1120.4*(voltage**2)) + (5742.3*voltage) - 4352.9
             return turbidity
         except:
-            print("Error in reading turbidity")
+            return 0
 
 
 class Oled:
@@ -79,7 +79,7 @@ class Temperature:
 
 
 class PH:
-    def _init_(self, pin_no):
+    def __init__(self, pin_no):
         self.adc = ADC(pin_no)
         
     def get_ph(self):
@@ -88,4 +88,4 @@ class PH:
             ph = float((-3*voltage)/653.0) + 15.6922
             return ph
         except:
-            print("Error in reading turbidity")
+            return 0
