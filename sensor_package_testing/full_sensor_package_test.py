@@ -11,23 +11,30 @@ from time import sleep
 #     return temp, roms[0]
 
 
+
 def main():
     tb = Turbidity(26)
-    ph = PH(27)
+    ph = PH(28)
     oled = Oled(0, 1)
-    # temp, dev = temp_init(15)
+
 
     while True:
-        tb_val = tb.get_turbidity()
-        ph_val = ph.get_ph()
-        print(ph_val)
-        oled.clear()
-        oled.show_oled("tb: ", tb_val, 0, 0)
-        oled.show_oled("pH: ", ph_val, 0, 10)
-        oled.show_scr()
-        sleep(1)
+
+        info_request = input()
+        if info_request == "":
+            #this is pressing enter
+            sensor = input("tb or ph?")
+            if sensor == "tb":
+                oled.clear()
+                oled.show_oled("tb: ", tb.get_turbidity(), 0, 0)
+                oled.show_scr()
+            elif sensor == "ph":
+                oled.clear()
+                oled.show_oled("pH: ", ph.get_ph(), 0, 0)
+                oled.show_scr()
 
 
 
 if __name__ == "__main__":
     main()
+    
