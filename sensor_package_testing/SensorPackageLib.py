@@ -3,6 +3,7 @@ from ssd1306 import SSD1306_I2C
 from onewire import OneWire
 from ds18x20 import DS18X20
 from time import sleep_ms
+import utime
 import math
 
 
@@ -35,14 +36,18 @@ class Oled:
         self.oled.show()
 
     def show_oled(self, text: str, reading: float, x: int, y: int):
+        self.oled.fill(0)
         self.oled.text(text, x, y)
         self.oled.text(str(round(reading,2)), len(text)+50, y)
+        self.oled.show()
 
     def welcome_screen(self):
+        self.oled.fill(0)
         self.oled.text("Welcome to", 23, 0)
         self.oled.text("IntelliTank!",15,10)
         self.oled.text("Press 1 to view",2, 40)
         self.oled.text("menu options",15,50)
+        self.oled.show()
     
 
 class TDS:
@@ -89,3 +94,34 @@ class PH:
             return ph
         except:
             return 0
+
+
+class Keypad:
+    def __init__(self):
+        self.col_list=[2,3,4,5]
+        self.row_list=[6,7,8,9]
+
+        for x in range(0,4):
+            self.row_list[x]=Pin(self.row_list[x], Pin.OUT)
+            self.row_list[x].value(1)
+
+        for x in range(0,4):
+            self.col_list[x] = Pin(self.col_list[x], Pin.IN, Pin.PULL_UP)
+
+        self.key_map=[["D","#","0","*"],
+                     ["C","9","8","7"],
+                     ["B","6","5","4"],
+                     ["A","3","2","1"]]
+
+
+    def keypad_read(self) -> str:
+        for r in self.row_list:
+            r.value(0)
+            result=[self.col_list[0].value(),self.col_list[1].value(),self.col_list[2].value(),self.col_list[3].value()]
+            if min(result)==0:
+                key=self.key_map[int(self.row_list.index(r))][int(result.index(0))]
+                r.value(1) # manages key kept pressed
+                return(key)
+            r.value(1)
+
+
