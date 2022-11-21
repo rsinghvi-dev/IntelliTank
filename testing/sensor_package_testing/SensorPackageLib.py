@@ -1,8 +1,8 @@
-from machine import ADC, Pin, I2C
+from machine import ADC, Pin, I2C, PWM
 from ssd1306 import SSD1306_I2C
 from onewire import OneWire
 from ds18x20 import DS18X20
-from time import sleep_ms
+from time import sleep_ms, sleep
 import utime
 import math
 
@@ -123,5 +123,16 @@ class Keypad:
                 r.value(1) # manages key kept pressed
                 return(key)
             r.value(1)
+    
 
+class Feeder:
+    def __init__(self, pin_no):
+        self.pwm = PWM(Pin(pin_no))
+        self.pwm.freq(50)
+        self.status = True
 
+    def feed(self):
+        for position in range(0, 600, 50):
+            self.pwm.duty_u16(position)
+            sleep(.1)
+        self.pwm.duty_u16(0)

@@ -20,8 +20,11 @@ ds_sensor = ds18x20.DS18X20(onewire.OneWire(ds_pin))
 
 dev = ds_sensor.scan() #scanning for all temperature sensors connected to pico
 
+print("-------")
+
 while True:
 #     print("--------")
+    print("++++++++++")
     ds_sensor.convert_temp()
     
     time.sleep_ms(750)
