@@ -1,5 +1,5 @@
-from time import sleep
-from SensorPackageLib import Temperature
+# from time import sleep
+# from SensorPackageLib import Temperature
 
 # while True:
 #     tmp = Temperature(15)
@@ -29,6 +29,6 @@ while True:
     
     time.sleep_ms(750)
     
-    print(ds_sensor.read_temp(dev[0]), "Fahrenheit") #in every iteration we are converting C to F
+    print(ds_sensor.read_temp(dev[0]), "Celcius") #in every iteration we are converting C to F
                
     time.sleep(2)
