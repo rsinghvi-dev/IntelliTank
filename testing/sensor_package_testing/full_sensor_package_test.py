@@ -1,6 +1,6 @@
 from SensorPackageLib import Turbidity, PH, TDS
 from ds18x20 import DS18X20
-from machine import Pin, UART
+from machine import Pin, UART, ADC
 from onewire import OneWire
 from time import sleep, sleep_ms
 
@@ -9,7 +9,7 @@ def temp_init(pin_no):
     temp = DS18X20(ow)
     print("---------")
     roms = temp.scan() #scanning for all temperature sensors connected to
-    print("++++++++++++")
+    print(roms)
     return roms[0], temp
     
 
@@ -29,12 +29,16 @@ def main():
     rom, temp = temp_init(22)
 #     keypad = Keypad()
 #     feeder = Feeder(10)
-#     tds = TDS(27)
-    oled_uart = UART(0, 9600, tx=Pin(16), rx=Pin(17))
-    oled_uart.init(9600, bits=8, parity=None, stop=1)
+    tbd = ADC(27)
+#     oled_uart = UART(0, 9600, tx=Pin(16), rx=Pin(17))
+#     oled_uart.init(9600, bits=8, parity=None, stop=1)
 
     while True:
-        buf = "%.1f,%.1f,%.1f\n\r" %(tb.get_turbidity(), ph.get_ph(), get_temp(rom, temp))
+        value = tbd.read_u16() 
+        voltage = value* (3.3 / (65535.0))
+        tdsValue = (133.42*voltage*voltage*voltage-255.86*voltage*voltage+857.39*voltage)*0.5
+
+        buf = "%.1f,%.1f,%.1f,%.1f\n\r" %(tb.get_turbidity(), ph.get_ph(), tdsValue, get_temp(rom, temp))
 #         oled_uart.write(buf)
         print(buf)
 #         key=keypad.keypad_read()
