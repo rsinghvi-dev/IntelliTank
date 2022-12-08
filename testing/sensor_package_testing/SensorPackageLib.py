@@ -48,18 +48,18 @@ class Turbidity:
 #         self.oled.show()
     
 
-class TDS:
-    def _init_(self, channel):
-        self.cad = ADC(channel)
+# class TDS:
+#     def _init_(self, channel):
+#         self.cad = ADC(channel)
  
-    def get_tds(self):
-        value = self.cad.read_u16()
-        if value != 0:
-            voltage = value* (3.3 / (65535.0))
-            tdsValue = (133.42*voltage*voltage*voltage-255.86*voltage*voltage+857.39*voltage)*0.5
-            return tdsValue
-        else:
-            return 0
+#     def get_tds(self):
+#         value = self.cad.read_u16()
+#         if value != 0:
+#             voltage = value* (3.3 / (65535.0))
+#             tdsValue = (133.42*voltage*voltage*voltage-255.86*voltage*voltage+857.39*voltage)*0.5
+#             return tdsValue
+#         else:
+#             return 0
 
 
 # class Temperature:
@@ -94,43 +94,39 @@ class PH:
             return 0
 
 
-class Keypad:
-    def __init__(self):
-        self.col_list=[2,3,4,5]
-        self.row_list=[6,7,8,9]
+# class Keypad:
+#     def __init__(self, pin1, pin2, pin3, pin4):
+#         self.list = [pin1, pin2, pin3, pin4]
+#         self.pins = [Pin(pin_no, Pin.IN, Pin.PULL_UP) for pin_no in self.list]
 
-        for x in range(0,4):
-            self.row_list[x]=Pin(self.row_list[x], Pin.OUT)
-            self.row_list[x].value(1)
+#         for x in range(0,4):
+#             self.col_list[x] = Pin(self.col_list[x], Pin.IN, Pin.PULL_UP)
 
-        for x in range(0,4):
-            self.col_list[x] = Pin(self.col_list[x], Pin.IN, Pin.PULL_UP)
-
-        self.key_map=[["D","#","0","*"],
-                     ["C","9","8","7"],
-                     ["B","6","5","4"],
-                     ["A","3","2","1"]]
+#         self.key_map=[["D","#","0","*"],
+#                      ["C","9","8","7"],
+#                      ["B","6","5","4"],
+#                      ["A","3","2","1"]]
 
 
-    def keypad_read(self) -> str:
-        for r in self.row_list:
-            r.value(0)
-            result=[self.col_list[0].value(),self.col_list[1].value(),self.col_list[2].value(),self.col_list[3].value()]
-            if min(result)==0:
-                key=self.key_map[int(self.row_list.index(r))][int(result.index(0))]
-                r.value(1) # manages key kept pressed
-                return(key)
-            r.value(1)
+#     def keypad_read(self) -> str:
+#         for r in self.row_list:
+#             r.value(0)
+#             result=[self.col_list[0].value(),self.col_list[1].value(),self.col_list[2].value(),self.col_list[3].value()]
+#             if min(result)==0:
+#                 key=self.key_map[int(self.row_list.index(r))][int(result.index(0))]
+#                 r.value(1) # manages key kept pressed
+#                 return(key)
+#             r.value(1)
     
 
-class Feeder:
-    def __init__(self, pin_no):
-        self.pwm = PWM(Pin(pin_no))
-        self.pwm.freq(50)
-        self.status = True
+# class Feeder:
+#     def __init__(self, pin_no):
+#         self.pwm = PWM(Pin(pin_no))
+#         self.pwm.freq(50)
+#         self.status = True
 
-    def feed(self):
-        for position in range(0, 600, 50):
-            self.pwm.duty_u16(position)
-            sleep(.1)
-        self.pwm.duty_u16(0)
+#     def feed(self):
+#         for position in range(0, 600, 50):
+#             self.pwm.duty_u16(position)
+#             sleep_ms(100)
+#         self.pwm.duty_u16(0)
