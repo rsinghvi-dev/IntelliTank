@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Fish Tank monitor</title>
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" href="static/style.css">
+</head>
+<body>
+	<div class="background"></div>
+    <div class="container">
+		<h1>IntelliTank</h1>
+		<table>
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Temperature</td>
+					<td id="temperature-value" class="{{ temperature_class }}">{{ temperature }} &#8457;</td>
+				</tr>
+				<tr>
+					<td>pH</td>
+					<td id="ph-value" class="{{ ph_class }}">{{ ph }}</td>
+				</tr>
+				<tr>
+					<td>Turbidity</td>
+					<td id="turbidity-value" class="{{ turbidity_class }}">{{ turbidity }} NTU</td>
+				</tr>
+				<tr>
+					<td>TDS</td>
+					<td id="tds-value" class="{{ tds_class }}">{{ tds }} ppm</td>
+				</tr>
+				<tr>
+					<td>Dissolved Oxygen</td>
+					<td id="dissolved-oxygen-value" class="{{ dissolved_oxygen_class }}">{{ dissolved_oxygen }} mg/L</td>
+				</tr>
+			</tbody>
+		</table>
+
+
+		<button id="feeder-button">
+			Automated Feeder
+		</button>
+		<div>
+			<button id="led-button-1" class="led-button">
+				LED Config 1
+			</button>
+			<button id="led-button-2" class="led-button">
+				LED Config 2
+			</button>
+			<button id="led-button-3" class="led-button">
+				LED Config 3
+			</button>
+			<button id="led-button-4" class="led-button">
+				LED Config 4
+			</button>
+		</div>
+	</div>	
+
+	<script>
+		const feederButton = document.querySelector('#feeder-button');
+		const ledButtons = document.querySelectorAll('.led-button');
+
+		const updateValues = () => {
+			var responseClone;
+			fetch('/sensor-data')
+				.then(response => { 
+					responseClone = response.clone();
+					return response.json()
+				})
+				.then(data => {
+					console.log('Sensor data:', data);
+					const temperatureValue = document.getElementById('temperature-value');
+					const phValue = document.getElementById('ph-value');
+					const turbidityValue = document.getElementById('turbidity-value');
+					const tdsValue = document.getElementById('tds-value');
+					const dissolvedOxygenValue = document.getElementById('dissolved-oxygen-value');
+					
+					temperatureValue.textContent = data.temperature + " °F";
+					phValue.textContent = data.ph;
+					turbidityValue.textContent = data.turbidity + " NTU";
+					tdsValue.textContent = data.tds + " ppm";
+					dissolvedOxygenValue.textContent = data.dissolved_oxygen + " mg/L";
+					temperatureValue.className = data.temperature_class;
+					phValue.className = data.ph_class;
+					turbidityValue.className = data.turbidity_class;
+					tdsValue.className = data.tds_class;
+					dissolvedOxygenValue.className = data.dissolved_oxygen_class;
+
+				},
+				rejectionReason => {
+					console.log('Error parsing JSON from response:', rejectionReason, responseClone); // 4
+					responseClone.text() // 5
+					.then(bodyText => {
+        			console.log('Received the following instead of valid JSON:', bodyText); // 6
+					});
+				})
+				.catch(error => console.error(error));
+		};
+
+		setInterval(updateValues, 3000);
+
+		feederButton.addEventListener('click', () => {
+			alert('Feeder has been activated!');
+		});
+
+		ledButtons.forEach((button) => {
+			button.addEventListener('click', () => {
+				alert(`LED configuration ${button.id.split('-')[2]} has been selected!`);
+			});
+		});
+	</script>
+</body>
+</html>
