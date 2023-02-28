@@ -1,12 +1,11 @@
-from SensorPackageLib import Turbidity, PH, Feeder
+from SensorPackageLib import Turbidity, PH
 from ds18x20 import DS18X20
 from machine import Pin, UART, ADC, PWM
 from onewire import OneWire
 from time import sleep, sleep_ms
-from neopixel import Neopixel
+import neopixel
 import random
 import _thread
-<<<<<<< HEAD
 # from qwiic_button import QwiicButton
 
 MID = 1500000
@@ -25,8 +24,6 @@ def feed(pwm):
     pwm.duty_ns(MID)
     sleep(1)
     pwm.duty_ns(0)      
-=======
->>>>>>> ca26457fdb7572ff99144d071009997ea6fb5fa3
 
 def temp_init(pin_no):
     ow = OneWire(Pin(pin_no))
@@ -41,32 +38,13 @@ def get_temp(roms, temp):
     temp.convert_temp()
     sleep_ms(750)
     reading = temp.read_temp(roms)
-<<<<<<< HEAD
     return reading * 1.8 + 32 if reading is not None else None
-=======
-    fah = temp.fahrenheit(reading)
-    return fah
->>>>>>> ca26457fdb7572ff99144d071009997ea6fb5fa3
 
 def get_tds(adc):
     value = adc.read_u16() 
     voltage = value* (3.3 / (65535.0))
     tdsValue = (133.42*voltage*voltage*voltage-255.86*voltage*voltage+857.39*voltage)*0.5
     return tdsValue
-<<<<<<< HEAD
-=======
-
-def feeder_init(pin_no):
-    feeder = PWM(Pin(pin_no))
-    feeder.freq(50)
-    return feeder
-
-def feed(feeder):
-    for position in range(0, 600, 50):
-        feeder.duty_u16(position)
-        sleep_ms(100)
-    feeder.duty_u16(0)
->>>>>>> ca26457fdb7572ff99144d071009997ea6fb5fa3
     
 def keypad_init(pin1, pin2, pin3, pin4):
     arr = [pin1, pin2, pin3, pin4]
@@ -74,10 +52,9 @@ def keypad_init(pin1, pin2, pin3, pin4):
     return pins
 
 def second_thread():
-<<<<<<< HEAD
     feeder = feeder_init(15)
-    numpix = 84
-    strip = Neopixel(numpix, 0, 1, "GRB")
+    numpix = 60
+    strip = neopixel.Neopixel(numpix, 1, 1, "GRBW")
     keys = keypad_init(3, 4, 5, 6)
     button_3 = keys[0]
     button_2 = keys[3]
@@ -85,14 +62,9 @@ def second_thread():
     button_1 = keys[2]
     
     while True:
+        if not button_4.value():
+            feed(feeder)
         if not button_3.value():
-=======
-    numpix = 84
-    strip = Neopixel(numpix, 0, 1, "GRB")
-    keys = keypad_init(3, 4, 5, 6)
-    while True:
-        if not keys[0].value():
->>>>>>> ca26457fdb7572ff99144d071009997ea6fb5fa3
             red = (255, 0, 0)
             orange = (255, 50, 0)
             yellow = (255, 100, 0)
@@ -125,12 +97,8 @@ def second_thread():
                 strip.rotate_right(1)
                 sleep_ms(42)
                 strip.show()
-<<<<<<< HEAD
                 if not button_1.value() or not button_2.value() or not button_4.value():
                     break
-                
-        if not button_4.value():
-            feed(feeder)
                     
         if not button_1.value():
             red = (255, 0, 0)
@@ -166,12 +134,6 @@ def second_thread():
                     break                        
                 
         if not button_2.value():
-=======
-                if not keys[1].value() or not keys[2].value() or not keys[3].value():
-                    break
-                
-        if not keys[1].value():
->>>>>>> ca26457fdb7572ff99144d071009997ea6fb5fa3
             colors_rgb = [
                 (232, 100, 255),  # Purple
                 (200, 200, 20),  # Yellow
@@ -223,64 +185,12 @@ def second_thread():
                         flashing[i] = [pix, colors[col], flash_len, 0, 1]
                     flashing[i][3] = flashing[i][3] + flashing[i][4]
                     sleep_ms(5)
-<<<<<<< HEAD
                     if not button_1.value() or not button_3.value() or not button_4.value():
                         break
                     
                 if not button_1.value() or not button_3.value() or not button_4.value():
                     break
 
-=======
-                    if not keys[0].value() or not keys[2].value() or not keys[3].value():
-                        break
-                    
-                if not keys[0].value() or not keys[2].value() or not keys[3].value():
-                    break
-                    
-        if not keys[2].value():
-            red = (255, 0, 0)
-            orange = (255, 165, 0)
-            yellow = (255, 150, 0)
-            green = (0, 255, 0)
-            blue = (0, 0, 255)
-            indigo = (75, 0, 130)
-            violet = (138, 43, 226)
-            colors_rgb = (red, orange, yellow, green, blue, indigo, violet)
-
-            # same colors as normaln rgb, just 0 added at the end
-            colors_rgbw = [color+tuple([0]) for color in colors_rgb]
-            colors_rgbw.append((0, 0, 0, 255))
-
-            # uncomment colors_rgb if you have RGB strip
-            # colors = colors_rgb
-            colors = colors_rgbw
-
-            strip.brightness(42)
-
-            while True:
-                for color in colors:
-                    for i in range(numpix):
-                        strip.set_pixel(i, color)
-                        sleep_ms(10)
-                        strip.show()
-                        if not keys[0].value() or not keys[1].value() or not keys[3].value():
-                            break
-                    if not keys[0].value() or not keys[1].value() or not keys[3].value():
-                        break    
-                if not keys[0].value() or not keys[1].value() or not keys[3].value():
-                    break                        
-                
-        if not keys[3].value():
-            hue = 0
-            while(True):
-                color = strip.colorHSV(hue, 255, 150)
-                strip.fill(color)
-                strip.show()
-                
-                hue += 150    
-                if not keys[0].value() or not keys[1].value() or not keys[2].value():
-                        break
->>>>>>> ca26457fdb7572ff99144d071009997ea6fb5fa3
             
     # ---Initialize devices---
 tb = Turbidity(26)
@@ -288,36 +198,25 @@ ph = PH(28)
 #     oled = Oled(0, 1)
 rom, temp = temp_init(22)
 #     keypad = Keypad()
-<<<<<<< HEAD
 tds = ADC(27)
 heat_relay = Pin(2, Pin.OUT)
 # feed_button = QwiicButton()
-oled_uart = UART(0, 9600, tx=Pin(12), rx=Pin(13))
-=======
-feeder = feeder_init(2)
-tds = ADC(27)
-heat_relay = Pin(2)
-oled_uart = UART(1, 9600, tx=Pin(4), rx=Pin(5))
->>>>>>> ca26457fdb7572ff99144d071009997ea6fb5fa3
-oled_uart.init(9600, bits=8, parity=None, stop=1)
+pi_uart = UART(0, 9600, tx=Pin(12), rx=Pin(13))
+pi_uart.init(9600, bits=8, parity=None, stop=1)
 
 _thread.start_new_thread(second_thread, ())
 
 while True:
     tmp = get_temp(rom, temp)
-<<<<<<< HEAD
-    if tmp < 75:
-=======
-    if tmp < 75.0:
->>>>>>> ca26457fdb7572ff99144d071009997ea6fb5fa3
-        heat_relay.value(0)
-    else:
-        heat_relay.value(1)
+#         heat_relay.value(1)
+#     else:
+#         heat_relay.value(0)
+
     ntu = tb.get_turbidity()
     ph_val = ph.get_ph()
     ppm = get_tds(tds)
-    buf = "%.1f,%.1f,%.1f,%.1f\n\r" %(ntu, ph_val, tmp, ppm)
-    oled_uart.write(buf)
+    buf = "%.1f,%.1f,%.1f,%.1f,8.3\n" %(ntu, ph_val, tmp, ppm)
+    pi_uart.write(buf)
     print(buf)
     # key=keypad.keypad_read()
     # if key != None:
@@ -334,9 +233,5 @@ while True:
     #         oled.show_oled("tds: ", round(tds.get_tds(), 2), 0, 0)
     #     if key == "*":
     #         feeder.feed()
-<<<<<<< HEAD
-    sleep(1)
-=======
-    sleep(1)
-    
->>>>>>> ca26457fdb7572ff99144d071009997ea6fb5fa3
+    sleep(0.75)
+
