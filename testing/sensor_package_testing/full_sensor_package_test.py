@@ -50,21 +50,46 @@ def keypad_init(pin1, pin2, pin3, pin4):
     arr = [pin1, pin2, pin3, pin4]
     pins = [Pin(pin_no, Pin.IN, Pin.PULL_UP) for pin_no in arr]
     return pins
+    
+def uart_init():
+    ser = UART(0, 9600, tx=Pin(12), rx=Pin(13))
+    ser.init(9600, bits=8, parity=None, stop=1)
+    return ser
+
+def read_ser(uart):
+    if uart.any():
+        buf_r = uart.readline().decode('utf-8')
+        print(buf_r)
+        return buf_r
+    else:
+        return "0"
+    
 
 def second_thread():
     feeder = feeder_init(15)
     numpix = 60
-    strip = neopixel.Neopixel(numpix, 1, 1, "GRBW")
+    strip = neopixel.Neopixel(numpix, 1, 1, "GRB")
     keys = keypad_init(3, 4, 5, 6)
     button_3 = keys[0]
     button_2 = keys[3]
     button_4 = keys[1]
     button_1 = keys[2]
+    pi_uart = uart_init()
+    feed_str = "FEED"
+    led_arr = ["LED1", "LED2", "LED3"]
+    buf = "0"
     
     while True:
-        if not button_4.value():
+        if not button_4.value() or "F" in buf:
             feed(feeder)
-        if not button_3.value():
+            buf = "0"
+            pi_uart.flush()
+            
+        buf = read_ser(pi_uart)
+        
+        if not button_3.value() or "3" in buf:
+            buf = "0"
+            pi_uart.flush()
             red = (255, 0, 0)
             orange = (255, 50, 0)
             yellow = (255, 100, 0)
@@ -97,10 +122,12 @@ def second_thread():
                 strip.rotate_right(1)
                 sleep_ms(42)
                 strip.show()
-                if not button_1.value() or not button_2.value() or not button_4.value():
+                buf = read_ser(pi_uart)
+                if not button_1.value() or not button_2.value() or not button_4.value() or not "0" in buf:
                     break
                     
-        if not button_1.value():
+        if not button_1.value() or "1" in buf:
+            buf = "0"
             red = (255, 0, 0)
             orange = (255, 165, 0)
             yellow = (255, 150, 0)
@@ -117,6 +144,7 @@ def second_thread():
             # uncomment colors_rgb if you have RGB strip
             # colors = colors_rgb
             colors = colors_rgbw
+            print("colorset")
 
             strip.brightness(42)
 
@@ -124,16 +152,19 @@ def second_thread():
                 for color in colors:
                     for i in range(numpix):
                         strip.set_pixel(i, color)
-                        sleep_ms(10)
+                        sleep_ms(5)
                         strip.show()
-                        if not button_2.value() or not button_3.value() or not button_4.value():
+                        buf = read_ser(pi_uart)
+                        if not button_2.value() or not button_3.value() or not button_4.value() or "F" in buf or "2" in buf or "3" in buf:
                             break
-                    if not button_2.value() or not button_3.value() or not button_4.value():
+                    if not button_2.value() or not button_3.value() or not button_4.value() or "F" in buf or "2" in buf or "3" in buf:
                         break    
-                if not button_2.value() or not button_3.value() or not button_4.value():
+                if not button_2.value() or not button_3.value() or not button_4.value() or "F" in buf or "2" in buf or "3" in buf:
                     break                        
                 
-        if not button_2.value():
+        if not button_2.value() or "2" in buf:
+            buf = "0"
+            pi_uart.flush()
             colors_rgb = [
                 (232, 100, 255),  # Purple
                 (200, 200, 20),  # Yellow
@@ -185,10 +216,12 @@ def second_thread():
                         flashing[i] = [pix, colors[col], flash_len, 0, 1]
                     flashing[i][3] = flashing[i][3] + flashing[i][4]
                     sleep_ms(5)
-                    if not button_1.value() or not button_3.value() or not button_4.value():
+                    buf = read_ser(pi_uart)
+                    if not button_1.value() or not button_3.value() or not button_4.value() or not "0" in buf:
+                        print(buf)
                         break
                     
-                if not button_1.value() or not button_3.value() or not button_4.value():
+                if not button_1.value() or not button_3.value() or not button_4.value() or not "0" in buf:
                     break
 
             
