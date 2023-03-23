@@ -3,7 +3,7 @@ from time import sleep
 import math
 
 
-adc = ADC(26)
+adc = ADC(28)
 
 
 while True:
