@@ -2,9 +2,9 @@ from machine import Pin, ADC
 from time import sleep
 import math
 
-# adc_pin = Pin(26, mode=Pin.IN)
-# adc = ADC(adc_pin)
-adc = ADC(2)
+adc_pin = Pin(26, mode=Pin.IN)
+adc = ADC(adc_pin)
+# adc = ADC(2)
 
 while True:
     print(adc.read_u16())
