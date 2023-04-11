@@ -1,0 +1,54 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+	<title>Fish Tank monitor</title>
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+</head>
+<body>
+    <iframe width="560" height="315" src="https://www.youtube.com/watch?v=90iLictnjcg" frameborder="0" allowfullscreen></iframe>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>YouTube Livestream Example</title>
+  </head>
+  <body>
+    <div id="player"></div>
+    <script>
+      // Replace 'YOUR_LIVESTREAM_ID' with the actual ID of the YouTube livestream
+      var livestreamId = '{{ livestream_id }}';
+
+      // Load the YouTube iFrame API library
+      var tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      var firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      // Create the YouTube player
+      var player;
+      function onYouTubeIframeAPIReady() {
+        player = new YT.Player('player', {
+          videoId: livestreamId,
+          events: {
+            'onReady': onPlayerReady,
+            'onStateChange': onPlayerStateChange
+          }
+        });
+      }
+
+      // When the player is ready, start playing the livestream
+      function onPlayerReady(event) {
+        event.target.playVideo();
+      }
+
+      // If the livestream stops, try to restart it
+      function onPlayerStateChange(event) {
+        if (event.data == YT.PlayerState.ENDED) {
+          player.loadVideoById(livestreamId);
+        }
+      }
+    </script>
+  </body>
+</html>

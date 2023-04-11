@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Fish Tank monitor</title>
+	<link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" type="text/css" href="static/style.css">
+</head>
+<body>
+	<div class="background"></div>
+    <div class="container">
+		<h1>IntelliTank</h1>
+		<table>
+			<thead>
+				<tr>
+					<th>Parameter</th>
+					<th>Value</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr>
+					<td>Temperature</td>
+					<td id="temperature-value" class="{{ temperature_class }}">{{ temperature }} &#8457;</td>
+				</tr>
+				<tr>
+					<td>pH</td>
+					<td id="ph-value" class="{{ ph_class }}">{{ ph }}</td>
+				</tr>
+				<tr>
+					<td>Turbidity</td>
+					<td id="turbidity-value" class="{{ turbidity_class }}">{{ turbidity }} NTU</td>
+				</tr>
+				<tr>
+					<td>TDS</td>
+					<td id="tds-value" class="{{ tds_class }}">{{ tds }} ppm</td>
+				</tr>
+				<tr>
+					<td>Feeder Measurement</td>
+					<td id="dissolved-oxygen-value" class="{{ dissolved_oxygen_class }}">{{ dissolved_oxygen }}</td>
+				</tr>
+			</tbody>
+		</table>
+		<form id="color-form">
+			<label for="color">Color:</label>
+			<input type="color" id="color" name="color">
+			<button type="submit">Change Color</button>
+		</form>
+		<form id="mode-form">
+            <label for="mode">Mode:</label>
+            <select id="mode" name="mode" required>
+                <option value="0">Solid</option>
+                <option value="1">Blink</option>
+                <option value="2">Breathe</option>
+                <option value="3">Wipe</option>
+                <option value="4">Wipe Random</option>
+                <option value="5">Random Colors</option>
+                <option value="6">Sweep</option>
+                <option value="7">Dynamic</option>
+                <option value="8">Colorloop</option>
+                <option value="9">Rainbow</option>
+            </select>
+            <button type="submit">Change Mode</button>
+        </form>
+	</form>
+	<form id="brightness-form">
+		<label for="brightness">Brightness:</label>
+		<input type="range" id="brightness" name="brightness" min="0" max="255" required>
+		<label id="brightness-value">0</label>
+		<button type="submit">Change Brightness</button>
+	</form>
+	<form id="speed-form">
+		<label for="speed">Effect Speed:</label>
+		<input type="range" id="speed" name="speed" min="0" max="255" required>
+		<label id="speed-value">0</label>
+		<button type="submit">Change Speed</button>
+	</form>
+	<form id="intensity-form">
+		<label for="intensity">Effect Intensity:</label>
+		<input type="range" id="intensity" name="intensity" min="0" max="255" required>
+		<label id="intensity-value">0</label>
+		<button type="submit">Change Intensity</button>
+	</form>
+        <!-- <form id="brightness-form">
+            <label for="brightness">Brightness:</label>
+            <input type="number" id="brightness" name="brightness" min="0" max="255" required>
+            <button type="submit">Change Brightness</button>
+        </form> -->
+
+		<button id="feeder-button">Feed</button>
+		<button id="bubbler-button">Bubbler</button>
+		<!-- <div>
+			<button id="led-button-1" class="led-button">LED Config 1</button>
+			<button id="led-button-2" class="led-button">LED Config 2</button>
+			<button id="led-button-3" class="led-button">LED Config 3</button>
+			<button id="led-button-4" class="led-button">LED Config 4</button>
+		</div> -->
+	</div>	
+
+	<script>
+		const feederButton = document.querySelector('#feeder-button');
+		const bubblerButton = document.querySelector('#bubbler-button');
+		// const ledButtons = document.querySelectorAll('.led-button');
+		const modeForm = document.getElementById('mode-form');
+		const colorForm = document.getElementById('color-form');
+        const brightnessForm = document.getElementById('brightness-form');
+        const brightnessSlider = document.getElementById('brightness');
+        const brightnessValueLabel = document.getElementById('brightness-value');
+		const speedForm = document.getElementById('speed-form');
+        const speedSlider = document.getElementById('speed');
+        const speedValueLabel = document.getElementById('speed-value');
+		const intensityForm = document.getElementById('intensity-form');
+        const intensitySlider = document.getElementById('intensity');
+        const intensityValueLabel = document.getElementById('intensity-value');
+		
+		const updateValues = () => {
+			var responseClone;
+			fetch('/sensor-data')
+				.then(response => { 
+					responseClone = response.clone();
+					return response.json()
+				})
+				.then(data => {
+					console.log('Sensor data:', data);
+					const temperatureValue = document.getElementById('temperature-value');
+					const phValue = document.getElementById('ph-value');
+					const turbidityValue = document.getElementById('turbidity-value');
+					const tdsValue = document.getElementById('tds-value');
+					const dissolvedOxygenValue = document.getElementById('dissolved-oxygen-value');
+					
+					temperatureValue.textContent = data.temperature + " °F";
+					phValue.textContent = data.ph;
+					turbidityValue.textContent = data.turbidity + " NTU";
+					tdsValue.textContent = data.tds + " ppm";
+					dissolvedOxygenValue.textContent = data.dissolved_oxygen;
+					temperatureValue.className = data.temperature_class;
+					phValue.className = data.ph_class;
+					turbidityValue.className = data.turbidity_class;
+					tdsValue.className = data.tds_class;
+					dissolvedOxygenValue.className = data.dissolved_oxygen_class;
+		
+				},
+				rejectionReason => {
+					console.log('Error parsing JSON from response:', rejectionReason, responseClone); // 4
+					responseClone.text() // 5
+					.then(bodyText => {
+					console.log('Received the following instead of valid JSON:', bodyText); // 6
+					});
+				})
+				.catch(error => console.error(error));
+		};
+		
+		setInterval(updateValues, 2500);
+		
+		feederButton.addEventListener('click', () => {
+			fetch('/feeder', {
+				method: 'POST'
+			})
+				.then(response => console.log(response))
+				.catch(error => console.error(error));
+			alert('Feeder has been activated!');
+		});
+
+		bubblerButton.addEventListener('click', () => {
+			fetch('/bubbler', {
+				method: 'POST'
+			})
+				.then(response => console.log(response))
+				.catch(error => console.error(error));
+			alert('Bubbler has been toggled!');
+		});
+		
+		/* ledButtons.forEach((button) => {
+			button.addEventListener('click', () => {
+				fetch(`/led/${button.id.split('-')[2]}`)
+					.then(response => console.log(response))
+					.catch(error => console.error(error));
+				alert(`LED configuration ${button.id.split('-')[2]} has been selected!`);
+			});
+		}); */
+
+        brightnessSlider.addEventListener('input', () => {
+            brightnessValueLabel.textContent = brightnessSlider.value;
+        });
+
+		speedSlider.addEventListener('input', () => {
+            speedValueLabel.textContent = speedSlider.value;
+        });
+
+		intensitySlider.addEventListener('input', () => {
+            intensityValueLabel.textContent = intensitySlider.value;
+        });
+
+		modeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const mode = document.getElementById('mode').value;
+            fetch(`/change_mode`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `mode=${mode}`
+            });
+        });
+
+        brightnessForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const brightness = brightnessSlider.value;
+            fetch(`/change_brightness`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `brightness=${brightness}`
+            });
+        });
+
+        speedForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const speed = speedSlider.value;
+            fetch(`/change_speed`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `speed=${speed}`
+            });
+        });
+
+        intensityForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const intensity = intensitySlider.value;
+            fetch(`/change_intensity`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `intensity=${intensity}`
+            });
+        });
+
+        colorForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const color = document.getElementById('color').value;
+            const formData = new FormData(colorForm);
+            fetch('/change_color', {
+                method: 'POST',
+                body: formData
+            });
+        });
+
+	</script>
+	<p>Check out our <a href="/livestream">livestream</a> for the latest updates!</p>
+</body>
+</html>
